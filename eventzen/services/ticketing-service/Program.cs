@@ -2,6 +2,7 @@ using System.Text;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Prometheus;
 using TicketingService.Infrastructure.Auth;
 using TicketingService.Infrastructure.Kafka;
 using TicketingService.Infrastructure.MongoDB;
@@ -111,6 +112,7 @@ using (var scope = app.Services.CreateScope())
 app.UseMiddleware<ExceptionMiddleware>();
 app.UseMiddleware<IdempotencyMiddleware>();
 
+app.UseHttpMetrics();
 app.UseCors();
 
 if (app.Environment.IsDevelopment())
@@ -123,6 +125,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapMetrics("/metrics");
 
 // ── Health Endpoint ──────────────────────────────────────
 app.MapGet("/api/v1/health", () => Results.Ok(new

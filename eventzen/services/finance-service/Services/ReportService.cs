@@ -102,6 +102,27 @@ public class ReportService(FinanceDbContext db, ILogger<ReportService> logger) :
             })
             .ToList();
 
+        report.RecentExpenses = expenses
+            .OrderByDescending(e => e.CreatedAt)
+            .Take(200)
+            .Select(e => new ExpenseAuditEntry
+            {
+                ExpenseId = e.ExpenseId,
+                EventId = e.EventId,
+                BudgetId = e.BudgetId,
+                Category = e.Category.ToString(),
+                Description = e.Description,
+                Amount = e.Amount,
+                Currency = e.Currency,
+                Status = e.Status.ToString(),
+                SubmittedBy = e.SubmittedBy,
+                ApprovedBy = e.ApprovedBy,
+                ReceiptUrl = e.ReceiptUrl,
+                CreatedAt = e.CreatedAt,
+                UpdatedAt = e.UpdatedAt
+            })
+            .ToList();
+
         logger.LogInformation("Generated financial report for event {EventId}", eventId);
         return report;
     }

@@ -40,6 +40,7 @@ const customerLinks = [
 const vendorLinks = [
   { label: "Dashboard", path: "/vendor/dashboard", icon: LayoutDashboard },
   { label: "Events", path: "/vendor/events", icon: Calendar },
+  { label: "Service Vendors", path: "/vendor/services", icon: Package },
   { label: "Reviews", path: "/vendor/reviews", icon: Star },
   { label: "Venues", path: "/vendor/venues", icon: MapPin },
   { label: "Check-In", path: "/vendor/check-in", icon: QrCode },

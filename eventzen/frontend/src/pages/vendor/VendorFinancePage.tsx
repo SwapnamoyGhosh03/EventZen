@@ -284,6 +284,10 @@ export default function VendorFinancePage() {
   const revenue = report?.totalPaymentsReceived ?? 0;
   const sponsorshipTotal = (sponsorships || []).reduce((s: number, sp: any) => s + (sp.amount || 0), 0);
   const netProfit = revenue + sponsorshipTotal - actualSpend;
+  const expenseHistory: any[] = Array.isArray(report?.recentExpenses) ? report.recentExpenses : [];
+  const submittedExpenseCount = expenseHistory.filter((e) => e?.status === "SUBMITTED").length;
+  const approvedExpenseCount = expenseHistory.filter((e) => e?.status === "APPROVED").length;
+  const latestExpenseAt = expenseHistory[0]?.createdAt ? new Date(expenseHistory[0].createdAt) : null;
 
   const alerts: string[] = [];
   if (report?.budgetUtilizationPercent > 85) alerts.push(`Budget utilization at ${report.budgetUtilizationPercent?.toFixed(0)}% — nearing limit.`);
@@ -525,9 +529,10 @@ export default function VendorFinancePage() {
                   <Loader2 size={24} className="animate-spin text-amber" />
                 </div>
               ) : (
-                <div className="grid lg:grid-cols-2 gap-8">
-                  {/* Budget side */}
-                  <div>
+                <div className="space-y-8">
+                  <div className="grid lg:grid-cols-2 gap-8">
+                    {/* Budget side */}
+                    <div>
                     {/* Auto-venue expense banner */}
                     {venueAutoInfo && (
                       <div className="flex items-start gap-3 bg-sage/10 border border-sage/30 rounded-xl px-4 py-3 mb-4">
@@ -676,10 +681,10 @@ export default function VendorFinancePage() {
                         <p className="font-body text-sm text-muted-gray">Initializing budget…</p>
                       </div>
                     )}
-                  </div>
+                    </div>
 
-                  {/* Expense side */}
-                  <div>
+                    {/* Expense side */}
+                    <div>
                     <h3 className="font-heading text-sm font-semibold text-near-black mb-4 flex items-center gap-2">
                       <Receipt size={15} className="text-amber" /> Log Expense
                     </h3>
@@ -752,6 +757,102 @@ export default function VendorFinancePage() {
                         Save Expense
                       </Button>
                     </div>
+                    </div>
+                  </div>
+
+                  <div className="border-t border-border-light pt-6">
+                    <div className="flex items-start justify-between gap-4 flex-wrap mb-4">
+                      <div>
+                        <h3 className="font-heading text-sm font-semibold text-near-black">Expense History & Audit Trail</h3>
+                        <p className="font-body text-xs text-muted-gray mt-1">
+                          Complete log of previously recorded expenses for this event, including who logged each entry and current approval state.
+                        </p>
+                      </div>
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                        <div className="bg-cream/60 border border-border-light rounded-lg px-3 py-2 min-w-[110px]">
+                          <p className="font-body text-[10px] text-muted-gray uppercase">Entries</p>
+                          <p className="font-heading text-sm font-bold text-near-black">{expenseHistory.length}</p>
+                        </div>
+                        <div className="bg-cream/60 border border-border-light rounded-lg px-3 py-2 min-w-[110px]">
+                          <p className="font-body text-[10px] text-muted-gray uppercase">Submitted</p>
+                          <p className="font-heading text-sm font-bold text-amber">{submittedExpenseCount}</p>
+                        </div>
+                        <div className="bg-cream/60 border border-border-light rounded-lg px-3 py-2 min-w-[110px]">
+                          <p className="font-body text-[10px] text-muted-gray uppercase">Approved</p>
+                          <p className="font-heading text-sm font-bold text-sage">{approvedExpenseCount}</p>
+                        </div>
+                        <div className="bg-cream/60 border border-border-light rounded-lg px-3 py-2 min-w-[140px]">
+                          <p className="font-body text-[10px] text-muted-gray uppercase">Last Entry</p>
+                          <p className="font-heading text-xs font-bold text-near-black">
+                            {latestExpenseAt ? latestExpenseAt.toLocaleString("en-IN") : "-"}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {expenseHistory.length === 0 ? (
+                      <div className="rounded-xl border border-border-light bg-cream/30 px-4 py-6 text-center">
+                        <p className="font-body text-sm text-muted-gray">No expenses logged yet for this event.</p>
+                      </div>
+                    ) : (
+                      <div className="overflow-x-auto border border-border-light rounded-xl">
+                        <table className="min-w-full text-sm">
+                          <thead className="bg-cream/50 border-b border-border-light">
+                            <tr>
+                              <th className="text-left px-3 py-2 font-body text-[11px] uppercase tracking-wide text-muted-gray">Date</th>
+                              <th className="text-left px-3 py-2 font-body text-[11px] uppercase tracking-wide text-muted-gray">Category</th>
+                              <th className="text-left px-3 py-2 font-body text-[11px] uppercase tracking-wide text-muted-gray">Description</th>
+                              <th className="text-right px-3 py-2 font-body text-[11px] uppercase tracking-wide text-muted-gray">Amount</th>
+                              <th className="text-left px-3 py-2 font-body text-[11px] uppercase tracking-wide text-muted-gray">Status</th>
+                              <th className="text-left px-3 py-2 font-body text-[11px] uppercase tracking-wide text-muted-gray">Logged By</th>
+                              <th className="text-left px-3 py-2 font-body text-[11px] uppercase tracking-wide text-muted-gray">Receipt</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-border-light bg-white">
+                            {expenseHistory.map((exp) => (
+                              <tr key={exp.expenseId}>
+                                <td className="px-3 py-2 font-body text-xs text-near-black whitespace-nowrap">
+                                  {exp.createdAt ? new Date(exp.createdAt).toLocaleString("en-IN") : "-"}
+                                </td>
+                                <td className="px-3 py-2 font-body text-xs text-near-black whitespace-nowrap">{exp.category || "-"}</td>
+                                <td className="px-3 py-2 font-body text-xs text-dark-gray min-w-[220px]">{exp.description || "-"}</td>
+                                <td className="px-3 py-2 font-body text-xs text-near-black text-right whitespace-nowrap">
+                                  {fmt(Number(exp.amount) || 0)}
+                                </td>
+                                <td className="px-3 py-2 whitespace-nowrap">
+                                  <Badge
+                                    variant={
+                                      exp.status === "APPROVED"
+                                        ? "success"
+                                        : exp.status === "REJECTED"
+                                        ? "danger"
+                                        : "warning"
+                                    }
+                                  >
+                                    {exp.status || "SUBMITTED"}
+                                  </Badge>
+                                </td>
+                                <td className="px-3 py-2 font-body text-xs text-muted-gray whitespace-nowrap">{exp.submittedBy || "-"}</td>
+                                <td className="px-3 py-2 font-body text-xs whitespace-nowrap">
+                                  {exp.receiptUrl ? (
+                                    <a
+                                      href={exp.receiptUrl}
+                                      target="_blank"
+                                      rel="noreferrer"
+                                      className="text-amber hover:underline"
+                                    >
+                                      View
+                                    </a>
+                                  ) : (
+                                    <span className="text-muted-gray">-</span>
+                                  )}
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
                   </div>
                 </div>
               )}

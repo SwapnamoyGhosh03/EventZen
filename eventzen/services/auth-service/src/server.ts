@@ -4,6 +4,7 @@ import helmet from 'helmet';
 import hpp from 'hpp';
 import cookieParser from 'cookie-parser';
 import path from 'path';
+import client from 'prom-client';
 import { config } from './config';
 import { errorHandler } from './middleware/errorHandler';
 import { generalLimiter } from './middleware/rateLimiter';
@@ -14,10 +15,46 @@ import db from './database/connection';
 import { connectKafka, disconnectKafka } from './events/kafkaProducer';
 import logger from './utils/logger';
 
+// ── Prometheus metrics ────────────────────────────────────
+const register = new client.Registry();
+client.collectDefaultMetrics({ register });
+
+const httpRequestsTotal = new client.Counter({
+  name: 'http_requests_total',
+  help: 'Total number of HTTP requests',
+  labelNames: ['method', 'route', 'status_code'],
+  registers: [register],
+});
+
+const httpRequestDuration = new client.Histogram({
+  name: 'http_request_duration_seconds',
+  help: 'HTTP request duration in seconds',
+  labelNames: ['method', 'route', 'status_code'],
+  buckets: [0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1, 2.5, 5],
+  registers: [register],
+});
+
 const app = express();
 
 // Kong sets forwarded headers; trust proxy so rate limiting works correctly.
 app.set('trust proxy', 1);
+
+// Metrics endpoint — before rate limiter so Prometheus can always scrape
+app.get('/metrics', async (_req, res) => {
+  res.set('Content-Type', register.contentType);
+  res.end(await register.metrics());
+});
+
+// HTTP instrumentation middleware
+app.use((req, res, next) => {
+  const end = httpRequestDuration.startTimer();
+  res.on('finish', () => {
+    const route = (req.route?.path as string) ?? req.path;
+    httpRequestsTotal.inc({ method: req.method, route, status_code: res.statusCode });
+    end({ method: req.method, route, status_code: res.statusCode });
+  });
+  next();
+});
 
 // Middleware
 app.use(helmet());
@@ -64,10 +101,14 @@ async function start() {
     directory: path.join(__dirname, 'database', 'migrations'),
     loadExtensions: ['.js'],
   });
-  await db.seed.run({
-    directory: path.join(__dirname, 'database', 'seeds'),
-    loadExtensions: ['.js'],
-  });
+  const rolesCountRow = await db('roles').count<{ count: number | string }[]>({ count: '*' }).first();
+  const rolesCount = Number(rolesCountRow?.count ?? 0);
+  if (rolesCount === 0) {
+    await db.seed.run({
+      directory: path.join(__dirname, 'database', 'seeds'),
+      loadExtensions: ['.js'],
+    });
+  }
 
   try {
     await connectKafka();

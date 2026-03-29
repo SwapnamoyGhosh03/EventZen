@@ -7,6 +7,7 @@ using FinanceService.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
+using Prometheus;
 using StackExchange.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -168,6 +169,7 @@ using (var scope = app.Services.CreateScope())
 
 // ----- Middleware Pipeline -----
 app.UseMiddleware<ExceptionMiddleware>();
+app.UseHttpMetrics();
 
 app.UseSwagger();
 app.UseSwaggerUI(c =>
@@ -180,6 +182,7 @@ app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+app.MapMetrics("/metrics");
 
 Console.WriteLine("EventZen Finance Service starting on port 8085...");
 await app.RunAsync();

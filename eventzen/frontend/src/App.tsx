@@ -46,6 +46,7 @@ const VendorCheckInPage = lazy(() => import("@/pages/vendor/VendorCheckInPage"))
 const VendorFinancePage = lazy(() => import("@/pages/vendor/VendorFinancePage"));
 const VendorReportsPage = lazy(() => import("@/pages/vendor/VendorReportsPage"));
 const VendorReviewsPage = lazy(() => import("@/pages/vendor/VendorReviewsPage"));
+const VendorServicesPage = lazy(() => import("@/pages/vendor/VendorServicesPage"));
 
 // Admin Portal
 const AdminDashboardPage = lazy(() => import("@/pages/admin/AdminDashboardPage"));
@@ -183,6 +184,14 @@ export default function App() {
                 element={
                   <RoleGuard roles={["ORGANIZER", "VENDOR"]}>
                     <VendorReviewsPage />
+                  </RoleGuard>
+                }
+              />
+              <Route
+                path="/vendor/services"
+                element={
+                  <RoleGuard roles={["ORGANIZER", "VENDOR"]}>
+                    <VendorServicesPage />
                   </RoleGuard>
                 }
               />
