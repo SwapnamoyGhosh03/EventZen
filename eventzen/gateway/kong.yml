@@ -1,0 +1,129 @@
+_format_version: "3.0"
+
+services:
+  - name: auth-service
+    url: http://host.docker.internal:8081
+    routes:
+      - name: auth-routes
+        paths:
+          - /api/v1/auth
+        strip_path: false
+      - name: user-routes
+        paths:
+          - /api/v1/users
+        strip_path: false
+      - name: account-request-routes
+        paths:
+          - /api/v1/account-requests
+        strip_path: false
+
+  - name: event-service
+    url: http://host.docker.internal:8082
+    routes:
+      - name: event-routes
+        paths:
+          - /api/v1/events
+        strip_path: false
+      - name: category-routes
+        paths:
+          - /api/v1/categories
+        strip_path: false
+
+  - name: venue-vendor-service
+    url: http://host.docker.internal:8083
+    routes:
+      - name: venue-routes
+        paths:
+          - /api/v1/venues
+        strip_path: false
+      - name: vendor-routes
+        paths:
+          - /api/v1/vendors
+        strip_path: false
+      - name: contract-routes
+        paths:
+          - /api/v1/contracts
+        strip_path: false
+      - name: vendor-expense-routes
+        paths:
+          - /api/v1/vendor-expenses
+        strip_path: false
+
+  - name: ticketing-service
+    url: http://host.docker.internal:8084
+    routes:
+      - name: ticket-type-routes
+        paths:
+          - /api/v1/ticket-types
+        strip_path: false
+      - name: registration-routes
+        paths:
+          - /api/v1/registrations
+        strip_path: false
+      - name: ticket-routes
+        paths:
+          - /api/v1/tickets
+        strip_path: false
+      - name: checkin-routes
+        paths:
+          - /api/v1/checkin
+        strip_path: false
+      - name: attendee-routes
+        paths:
+          - /api/v1/attendees
+        strip_path: false
+
+  - name: finance-service
+    url: http://host.docker.internal:8085
+    routes:
+      - name: budget-routes
+        paths:
+          - /api/v1/budgets
+        strip_path: false
+      - name: expense-routes
+        paths:
+          - /api/v1/expenses
+        strip_path: false
+      - name: payment-routes
+        paths:
+          - /api/v1/payments
+        strip_path: false
+
+  - name: notification-service
+    url: http://host.docker.internal:8086
+    routes:
+      - name: notification-routes
+        paths:
+          - /notifications
+        strip_path: false
+
+plugins:
+  - name: rate-limiting
+    config:
+      minute: 100
+      policy: local
+  - name: cors
+    config:
+      origins:
+        - http://localhost:3000
+        - https://eventzen.io
+      credentials: true
+      headers:
+        - Content-Type
+        - Authorization
+        - Idempotency-Key
+        - X-Request-ID
+      methods:
+        - GET
+        - POST
+        - PUT
+        - PATCH
+        - DELETE
+        - OPTIONS
+  - name: request-size-limiting
+    config:
+      allowed_payload_size: 10
+      size_unit: megabytes
+  - name: file-log
+    config:
+      path: /tmp/kong-access.log

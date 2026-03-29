@@ -1,0 +1,45 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.2.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "eventzen", "eventzen", "{543D2987-7909-0AF6-2F61-50270F2CE217}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "services", "services", "{E6B59BC4-DE79-FE7D-D341-651EF27832BB}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "finance-service", "finance-service", "{55235812-9BDB-8EDF-1D9F-DD893AAC2317}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FinanceService", "eventzen\services\finance-service\FinanceService.csproj", "{2E09CB30-EABF-12D7-F843-53E7F7C76604}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ticketing-service", "ticketing-service", "{A80B24CF-8FD1-4AD0-D59E-A45AFF7A80EA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TicketingService", "eventzen\services\ticketing-service\TicketingService.csproj", "{95E2670F-301F-59E2-A870-B3B48AC1D9A4}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2E09CB30-EABF-12D7-F843-53E7F7C76604}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2E09CB30-EABF-12D7-F843-53E7F7C76604}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2E09CB30-EABF-12D7-F843-53E7F7C76604}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2E09CB30-EABF-12D7-F843-53E7F7C76604}.Release|Any CPU.Build.0 = Release|Any CPU
+		{95E2670F-301F-59E2-A870-B3B48AC1D9A4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{95E2670F-301F-59E2-A870-B3B48AC1D9A4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{95E2670F-301F-59E2-A870-B3B48AC1D9A4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{95E2670F-301F-59E2-A870-B3B48AC1D9A4}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{E6B59BC4-DE79-FE7D-D341-651EF27832BB} = {543D2987-7909-0AF6-2F61-50270F2CE217}
+		{55235812-9BDB-8EDF-1D9F-DD893AAC2317} = {E6B59BC4-DE79-FE7D-D341-651EF27832BB}
+		{2E09CB30-EABF-12D7-F843-53E7F7C76604} = {55235812-9BDB-8EDF-1D9F-DD893AAC2317}
+		{A80B24CF-8FD1-4AD0-D59E-A45AFF7A80EA} = {E6B59BC4-DE79-FE7D-D341-651EF27832BB}
+		{95E2670F-301F-59E2-A870-B3B48AC1D9A4} = {A80B24CF-8FD1-4AD0-D59E-A45AFF7A80EA}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {45DBA665-AEB0-4894-B4C0-756D09A041F4}
+	EndGlobalSection
+EndGlobal
