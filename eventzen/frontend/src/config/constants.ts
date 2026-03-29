@@ -1,13 +1,13 @@
 export const API_BASE_URLS = {
-  AUTH: "http://localhost:8081/api/v1",
-  EVENT: "http://localhost:8082/api/v1",
-  VENUE: "http://localhost:8083/api/v1",
-  TICKET: "http://localhost:8084/api/v1",
-  PAYMENT: "http://localhost:8085/api/v1",
-  NOTIFICATION: "http://localhost:8086/api/v1",
+  AUTH: import.meta.env.VITE_AUTH_API_URL || "http://localhost:8081/api/v1",
+  EVENT: import.meta.env.VITE_EVENT_API_URL || "http://localhost:8082/api/v1",
+  VENUE: import.meta.env.VITE_VENUE_API_URL || "http://localhost:8083/api/v1",
+  TICKET: import.meta.env.VITE_TICKET_API_URL || "http://localhost:8084/api/v1",
+  PAYMENT: import.meta.env.VITE_PAYMENT_API_URL || "http://localhost:8085/api/v1",
+  NOTIFICATION: import.meta.env.VITE_NOTIFICATION_API_URL || "http://localhost:8086/api/v1",
 } as const;
 
-export const UPLOAD_URL = "http://localhost:8083/api/v1/upload";
+export const UPLOAD_URL = import.meta.env.VITE_UPLOAD_URL || "http://localhost:8083/api/v1/upload";
 
 export const PAGINATION = {
   DEFAULT_PAGE: 0,
