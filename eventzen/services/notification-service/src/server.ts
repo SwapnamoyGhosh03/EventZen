@@ -46,8 +46,19 @@ app.use('/api/v1/notifications', notificationRoutes);
 // Error handler
 app.use(errorHandler);
 
+function assertRequiredConfig(): void {
+  const missing: string[] = [];
+  if (!config.jwt.secret) missing.push('JWT_SECRET');
+  if (!config.redis.password) missing.push('REDIS_PASSWORD');
+
+  if (missing.length > 0) {
+    throw new Error(`Missing required configuration: ${missing.join(', ')}`);
+  }
+}
+
 // Startup
 async function start(): Promise<void> {
+  assertRequiredConfig();
   await connectDatabase();
 
   initSocketIO(server);

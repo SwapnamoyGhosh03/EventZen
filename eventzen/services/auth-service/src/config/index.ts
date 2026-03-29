@@ -11,7 +11,7 @@ export const config = {
     port: parseInt(process.env.MYSQL_PORT || '3306', 10),
     database: 'eventzen_auth',
     user: process.env.MYSQL_USER || 'root',
-    password: process.env.MYSQL_ROOT_PASSWORD || 'Swapnamoy@2003',
+    password: process.env.MYSQL_ROOT_PASSWORD || '',
   },
 
   redis: {
@@ -21,8 +21,8 @@ export const config = {
   },
 
   jwt: {
-    secret: process.env.JWT_SECRET || 'eventzen-super-secret-key-change-in-production-2026',
-    refreshSecret: process.env.JWT_REFRESH_SECRET || 'eventzen-refresh-secret-key-change-in-production-2026',
+    secret: process.env.JWT_SECRET || '',
+    refreshSecret: process.env.JWT_REFRESH_SECRET || '',
     accessExpiresIn: '15m',
     refreshExpiresIn: '7d',
   },
@@ -32,7 +32,7 @@ export const config = {
     clientId: 'auth-service',
   },
 
-  piiEncryptionKey: process.env.PII_ENCRYPTION_KEY || '0123456789abcdef0123456789abcdef',
+  piiEncryptionKey: process.env.PII_ENCRYPTION_KEY || '',
 
   cors: {
     origins: (process.env.CORS_ORIGINS || 'http://localhost:3000').split(','),

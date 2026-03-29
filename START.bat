@@ -6,7 +6,33 @@ echo ============================================
 echo.
 
 set ROOT=%~dp0
-set SERVICES_DIR=%ROOT%services
+set EVENTZEN_ROOT=%ROOT%eventzen
+set SERVICES_DIR=%EVENTZEN_ROOT%\services
+
+set VAULT_MODE=dev
+for /f "tokens=1,* delims==" %%A in ('findstr /b /i "VAULT_MODE=" "%EVENTZEN_ROOT%\.env"') do set VAULT_MODE=%%B
+
+if /I "%VAULT_MODE%"=="dev" (
+	echo [0/8] Starting Vault dev services...
+	cd /d "%EVENTZEN_ROOT%"
+	docker compose --profile vault-dev up -d vault vault-init
+	if errorlevel 1 (
+		echo Failed to start Vault dev services. Aborting startup.
+		exit /b 1
+	)
+	cd /d "%ROOT%"
+)
+
+echo [0/8] Rendering Vault-backed environment variables...
+powershell -NoProfile -ExecutionPolicy Bypass -File "%EVENTZEN_ROOT%\scripts\vault\Render-VaultEnv.ps1" -Target local -EnvFilePath ".env"
+if errorlevel 1 (
+	echo Failed to render Vault secrets. Aborting startup.
+	exit /b 1
+)
+
+for /f "usebackq tokens=1,* delims==" %%A in ("%EVENTZEN_ROOT%\.vault\generated\local.env") do (
+	if not "%%A"=="" if /I not "%%A:~0,1%"=="#" set "%%A=%%B"
+)
 
 :: ---- Infrastructure ----
 

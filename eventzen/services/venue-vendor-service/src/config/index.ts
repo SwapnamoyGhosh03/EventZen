@@ -7,7 +7,7 @@ export const config = {
     password: process.env.REDIS_PASSWORD || '',
   },
   jwt: {
-    secret: process.env.JWT_SECRET || 'eventzen-super-secret-key-change-in-production-2026',
+    secret: process.env.JWT_SECRET || '',
   },
   kafka: {
     brokers: (process.env.KAFKA_BROKERS || 'localhost:9092').split(','),
@@ -19,8 +19,8 @@ export const config = {
   minio: {
     endpoint: process.env.MINIO_ENDPOINT || 'localhost',
     port: parseInt(process.env.MINIO_PORT || '9000', 10),
-    accessKey: process.env.MINIO_ACCESS_KEY || 'eventzen',
-    secretKey: process.env.MINIO_SECRET_KEY || 'eventzen123',
+    accessKey: process.env.MINIO_ACCESS_KEY || '',
+    secretKey: process.env.MINIO_SECRET_KEY || '',
     bucket: process.env.MINIO_BUCKET || 'eventzen-media',
     publicUrl: process.env.MINIO_PUBLIC_URL || 'http://localhost:9000',
   },

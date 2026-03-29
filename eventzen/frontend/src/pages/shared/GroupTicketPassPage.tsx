@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { ArrowLeft, Calendar, MapPin, Users, ShieldCheck, Copy, Check } from "lucide-react";
+import { ArrowLeft, Calendar, MapPin, Users, ShieldCheck, Copy, Check, ImageDown } from "lucide-react";
 import PageTransition from "@/components/layout/PageTransition";
-import QRCodeDisplay from "@/components/tickets/QRCodeDisplay";
+import { QRCodeCanvas } from "qrcode.react";
 import Badge from "@/components/ui/Badge";
 import { useGetEventQuery } from "@/store/api/eventApi";
 import { useAuthContext } from "@/context/AuthContext";
@@ -12,6 +12,7 @@ export default function GroupTicketPassPage() {
   const [searchParams] = useSearchParams();
   const [copied, setCopied] = useState(false);
   const { user } = useAuthContext();
+  const qrCanvasRef = useRef<HTMLCanvasElement | null>(null);
 
   const qrsParam = searchParams.get("qrs") || "";
   const eventId = searchParams.get("event") || "";
@@ -40,6 +41,15 @@ export default function GroupTicketPassPage() {
     qty,
     tickets: qrCodes,
   });
+
+  function downloadQrPng() {
+    const canvas = qrCanvasRef.current;
+    if (!canvas) return;
+    const a = document.createElement("a");
+    a.href = canvas.toDataURL("image/png");
+    a.download = `eventzen-group-qr-${eventId.slice(0, 8)}.png`;
+    a.click();
+  }
 
   function copyIds() {
     navigator.clipboard.writeText(ticketIds.join(", ")).then(() => {
@@ -102,14 +112,29 @@ export default function GroupTicketPassPage() {
             </div>
           </div>
 
-          {/* QR Code */}
+          {/* QR Code — canvas at 320px, level L for max readability */}
           <div className="px-8 pt-8 pb-4 text-center">
-            <div className="inline-block">
-              <QRCodeDisplay value={qrValue} size={200} />
+            <div className="inline-flex items-center justify-center p-4 bg-white border-2 border-border-light rounded-xl">
+              <QRCodeCanvas
+                ref={(el) => { if (el) qrCanvasRef.current = el; }}
+                value={qrValue}
+                size={320}
+                level="L"
+                bgColor="#FFFFFF"
+                fgColor="#1E1E1E"
+              />
             </div>
             <p className="font-body text-xs text-muted-gray mt-3">
               Scan to check in {qty} {tier} attendee{qty !== 1 ? "s" : ""}
             </p>
+            <button
+              type="button"
+              onClick={downloadQrPng}
+              className="mt-2 inline-flex items-center gap-1.5 font-body text-xs text-muted-gray hover:text-amber transition-colors"
+            >
+              <ImageDown size={13} />
+              Download QR as PNG
+            </button>
           </div>
 
           {/* Group summary strip */}

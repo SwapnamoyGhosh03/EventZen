@@ -12,7 +12,7 @@ export const config = {
     keyPrefix: 'notif:',
   },
   jwt: {
-    secret: process.env.JWT_SECRET || 'eventzen-super-secret-key-change-in-production-2026',
+    secret: process.env.JWT_SECRET || '',
   },
   kafka: {
     brokers: (process.env.KAFKA_BROKERS || 'localhost:9092').split(','),

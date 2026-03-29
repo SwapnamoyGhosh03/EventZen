@@ -1,8 +1,9 @@
 import { useState, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
-import { ArrowLeft, User, Mail, Hash, Calendar, MapPin, Copy, Check, ShieldCheck, Download } from "lucide-react";
+import { ArrowLeft, User, Mail, Hash, Calendar, MapPin, Copy, Check, ShieldCheck, Download, ImageDown } from "lucide-react";
 import PageTransition from "@/components/layout/PageTransition";
 import QRCodeDisplay from "@/components/tickets/QRCodeDisplay";
+import { QRCodeCanvas } from "qrcode.react";
 import Badge from "@/components/ui/Badge";
 import Button from "@/components/ui/Button";
 import Skeleton from "@/components/ui/Skeleton";
@@ -30,6 +31,7 @@ export default function TicketPassPage() {
   const [copied, setCopied] = useState(false);
   const [downloading, setDownloading] = useState(false);
   const passRef = useRef<HTMLDivElement>(null);
+  const qrCanvasRef = useRef<HTMLCanvasElement | null>(null);
 
   // Headcount: how many tickets this user has for the same event
   const allTickets: any[] = Array.isArray(allTicketsData?.content)
@@ -87,6 +89,17 @@ export default function TicketPassPage() {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     });
+  }
+
+  function handleDownloadQrPng() {
+    const canvas = qrCanvasRef.current;
+    if (!canvas) return;
+    const url = canvas.toDataURL("image/png");
+    const a = document.createElement("a");
+    a.href = url;
+    const slug = (eventName || "ticket").replace(/\s+/g, "-").toLowerCase();
+    a.download = `eventzen-qr-${slug}.png`;
+    a.click();
   }
 
   async function handleDownloadPass() {
@@ -174,9 +187,22 @@ export default function TicketPassPage() {
             {/* QR Code */}
             <div className="px-8 pt-8 pb-4 text-center">
               {qrValue ? (
-                <div className="inline-block">
-                  <QRCodeDisplay value={qrValue} size={200} />
-                </div>
+                <>
+                  <div className="inline-block">
+                    <QRCodeDisplay value={qrValue} size={200} />
+                  </div>
+                  {/* Hidden high-res canvas for PNG download */}
+                  <div className="hidden">
+                    <QRCodeCanvas
+                      ref={(el) => { if (el) qrCanvasRef.current = el; }}
+                      value={qrValue}
+                      size={600}
+                      level="H"
+                      bgColor="#FFFFFF"
+                      fgColor="#1E1E1E"
+                    />
+                  </div>
+                </>
               ) : (
                 <div className="w-[200px] h-[200px] mx-auto bg-cream rounded-xl flex flex-col items-center justify-center gap-2 px-4 border border-border-light">
                   <span className="font-body text-xs text-muted-gray">Ticket Code</span>
@@ -188,6 +214,16 @@ export default function TicketPassPage() {
               <p className="font-body text-xs text-muted-gray mt-3">
                 Show this at check-in
               </p>
+              {qrValue && (
+                <button
+                  type="button"
+                  onClick={handleDownloadQrPng}
+                  className="mt-2 inline-flex items-center gap-1.5 font-body text-xs text-muted-gray hover:text-amber transition-colors"
+                >
+                  <ImageDown size={13} />
+                  Download QR as PNG
+                </button>
+              )}
             </div>
 
             {/* Verification code — the key identity element */}

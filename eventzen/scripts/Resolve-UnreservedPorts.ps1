@@ -138,6 +138,7 @@ $portVars = [ordered]@{
   "HOST_MINIO_API_PORT" = 9000
   "HOST_MINIO_CONSOLE_PORT" = 9001
   "HOST_ELASTICSEARCH_PORT" = 9200
+  "HOST_VAULT_PORT" = 8200
 }
 
 $lines = Get-Content -LiteralPath $EnvFilePath

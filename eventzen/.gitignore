@@ -1,6 +1,8 @@
 # Environment
 .env
 *.local
+.vault/generated/*.env
+!.vault/generated/.gitkeep
 
 # Node.js
 node_modules/

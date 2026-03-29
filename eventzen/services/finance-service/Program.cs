@@ -123,21 +123,22 @@ using (var scope = app.Services.CreateScope())
     var db = scope.ServiceProvider.GetRequiredService<FinanceDbContext>();
     try
     {
-        await db.Database.MigrateAsync();
-        Console.WriteLine("Database migrations applied successfully.");
+        // If no migration files exist, EnsureCreatedAsync creates schema from model directly
+        var pendingMigrations = await db.Database.GetPendingMigrationsAsync();
+        if (pendingMigrations.Any())
+        {
+            await db.Database.MigrateAsync();
+            Console.WriteLine("Database migrations applied successfully.");
+        }
+        else
+        {
+            await db.Database.EnsureCreatedAsync();
+            Console.WriteLine("Database schema ensured.");
+        }
     }
     catch (Exception ex)
     {
-        Console.WriteLine($"Warning: Migration failed: {ex.Message}. Ensuring database is created...");
-        try
-        {
-            await db.Database.EnsureCreatedAsync();
-            Console.WriteLine("Database created successfully.");
-        }
-        catch (Exception createEx)
-        {
-            Console.WriteLine($"Warning: Database creation also failed: {createEx.Message}");
-        }
+        Console.WriteLine($"Warning: DB setup failed: {ex.Message}");
     }
 
     // Ensure tables added after initial schema creation exist (no-op if already present)

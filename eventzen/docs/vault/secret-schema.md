@@ -1,0 +1,42 @@
+# EventZen Vault Secret Schema
+
+Vault KV v2 location:
+- Mount: `secret`
+- Path: `secret/eventzen/shared`
+
+Required keys:
+- `MYSQL_ROOT_PASSWORD`
+- `REDIS_PASSWORD`
+- `JWT_SECRET`
+- `JWT_REFRESH_SECRET`
+- `TICKET_HMAC_SECRET`
+
+Recommended keys:
+- `AUTH_DB_PASSWORD`
+- `EVENT_DB_PASSWORD`
+- `FINANCE_DB_PASSWORD`
+- `PII_ENCRYPTION_KEY`
+- `STRIPE_SECRET_KEY`
+- `STRIPE_WEBHOOK_SECRET`
+- `SMTP_HOST`
+- `SMTP_PORT`
+- `SMTP_USER`
+- `SMTP_PASS`
+- `SMTP_FROM`
+- `SENDGRID_API_KEY`
+- `TWILIO_SID`
+- `TWILIO_AUTH_TOKEN`
+- `TWILIO_PHONE`
+- `FCM_PROJECT_ID`
+- `FCM_PRIVATE_KEY`
+- `FCM_CLIENT_EMAIL`
+- `MINIO_ROOT_USER`
+- `MINIO_ROOT_PASSWORD`
+- `MINIO_ACCESS_KEY`
+- `MINIO_SECRET_KEY`
+
+Dev mode bootstrap command:
+
+```bash
+vault kv put secret/eventzen/shared MYSQL_ROOT_PASSWORD=... REDIS_PASSWORD=... JWT_SECRET=... JWT_REFRESH_SECRET=... TICKET_HMAC_SECRET=...
+```

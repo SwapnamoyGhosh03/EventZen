@@ -7,6 +7,28 @@ interface QRImageUploadProps {
   onError?: (msg: string) => void;
 }
 
+function tryDecode(img: HTMLImageElement, scale: number, threshold?: number): string | null {
+  const w = Math.round(img.width * scale);
+  const h = Math.round(img.height * scale);
+  const canvas = document.createElement("canvas");
+  canvas.width = w;
+  canvas.height = h;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return null;
+  ctx.imageSmoothingEnabled = scale < 1; // nearest-neighbour when upscaling
+  ctx.drawImage(img, 0, 0, w, h);
+  const imageData = ctx.getImageData(0, 0, w, h);
+  if (threshold !== undefined) {
+    const d = imageData.data;
+    for (let i = 0; i < d.length; i += 4) {
+      const gray = 0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2];
+      const v = gray < threshold ? 0 : 255;
+      d[i] = d[i + 1] = d[i + 2] = v;
+    }
+  }
+  return jsQR(imageData.data, w, h)?.data ?? null;
+}
+
 export default function QRImageUpload({ onDetected, onError }: QRImageUploadProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [preview, setPreview] = useState<string | null>(null);
@@ -30,21 +52,24 @@ export default function QRImageUpload({ onDetected, onError }: QRImageUploadProp
 
       const img = new Image();
       img.onload = () => {
-        const canvas = document.createElement("canvas");
-        canvas.width = img.width;
-        canvas.height = img.height;
-        const ctx = canvas.getContext("2d");
-        if (!ctx) {
-          setScanning(false);
-          onError?.("Could not process image.");
-          return;
+        // Try progressively: original → upscaled → threshold binarisation at multiple scales
+        const strategies: Array<() => string | null> = [
+          () => tryDecode(img, 1),
+          () => tryDecode(img, 1, 128),
+          () => tryDecode(img, 2, 128),
+          () => tryDecode(img, 4, 128),
+          () => tryDecode(img, 2, 100),
+          () => tryDecode(img, 2, 160),
+          () => tryDecode(img, 3, 128),
+        ];
+        let decoded: string | null = null;
+        for (const attempt of strategies) {
+          try { decoded = attempt(); } catch { /* ignore */ }
+          if (decoded) break;
         }
-        ctx.drawImage(img, 0, 0);
-        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-        const result = jsQR(imageData.data, imageData.width, imageData.height);
         setScanning(false);
-        if (result?.data) {
-          onDetected(result.data);
+        if (decoded) {
+          onDetected(decoded);
         } else {
           onError?.("No QR code found in this image. Try a clearer screenshot.");
         }

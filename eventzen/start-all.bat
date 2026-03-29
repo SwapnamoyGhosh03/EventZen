@@ -8,6 +8,29 @@ echo.
 set ROOT=%~dp0
 set SERVICES_DIR=%ROOT%services
 
+set VAULT_MODE=dev
+for /f "tokens=1,* delims==" %%A in ('findstr /b /i "VAULT_MODE=" "%ROOT%\.env"') do set VAULT_MODE=%%B
+
+if /I "%VAULT_MODE%"=="dev" (
+	echo [0/9] Starting Vault dev services...
+	docker compose --profile vault-dev up -d vault vault-init
+	if errorlevel 1 (
+		echo Failed to start Vault dev services. Aborting startup.
+		exit /b 1
+	)
+)
+
+echo [0/9] Rendering Vault-backed environment variables...
+powershell -NoProfile -ExecutionPolicy Bypass -File "%ROOT%scripts\vault\Render-VaultEnv.ps1" -Target local -EnvFilePath ".env"
+if errorlevel 1 (
+	echo Failed to render Vault secrets. Aborting startup.
+	exit /b 1
+)
+
+for /f "usebackq tokens=1,* delims==" %%A in ("%ROOT%\.vault\generated\local.env") do (
+	if not "%%A"=="" if /I not "%%A:~0,1%"=="#" set "%%A=%%B"
+)
+
 :: ---- Infrastructure ----
 
 echo [1/9] Starting MongoDB...

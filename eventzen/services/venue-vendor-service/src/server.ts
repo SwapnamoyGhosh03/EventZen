@@ -46,8 +46,21 @@ app.use('/api/v1/upload', uploadRoutes);
 // Error handler
 app.use(errorHandler);
 
+function assertRequiredConfig(): void {
+  const missing: string[] = [];
+  if (!config.jwt.secret) missing.push('JWT_SECRET');
+  if (!config.redis.password) missing.push('REDIS_PASSWORD');
+  if (!config.minio.accessKey) missing.push('MINIO_ACCESS_KEY');
+  if (!config.minio.secretKey) missing.push('MINIO_SECRET_KEY');
+
+  if (missing.length > 0) {
+    throw new Error(`Missing required configuration: ${missing.join(', ')}`);
+  }
+}
+
 const start = async () => {
   try {
+    assertRequiredConfig();
     await connectDatabase();
     await connectRedis();
     await connectKafkaProducer();
