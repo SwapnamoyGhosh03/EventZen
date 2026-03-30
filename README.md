@@ -1,7 +1,10 @@
 <p align="center">
-  <video src="https://drive.google.com/file/d/1FqscwGyNFRA82kkxG9_u14H3sfgpxGs-/view?usp=sharing" controls width="100%"></video>
+  
   <img width="1170" height="673" alt="Screenshot 2026-03-30 193007" src="https://github.com/user-attachments/assets/6167a944-4d5f-429c-a604-345647d7ad49" />
-   <video src="https://drive.google.com/file/d/1FqscwGyNFRA82kkxG9_u14H3sfgpxGs-/view?usp=sharing" controls width="100%"></video>
+   ## 🎥 Project Demo
+A complete walkthrough and live demonstration of the project is available here:
+
+👉 [Project Demo](https://drive.google.com/file/d/1FqscwGyNFRA82kkxG9_u14H3sfgpxGs-/view)
 
 </p>
 
