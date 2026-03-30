@@ -1032,7 +1032,7 @@ This project was built as a **Deloitte Capstone Project**. Please refer to the o
 ---
 
 <p align="center">
-  <b>Built with ❤️ by the EventZen Team</b>
+  <b>Built by Swapnamoy Ghosh</b>
   <br/>
   <sub>React · Spring Boot · .NET · Node.js · Kafka · Kong · Vault · Docker</sub>
 </p>
