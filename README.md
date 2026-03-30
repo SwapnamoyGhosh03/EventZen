@@ -319,17 +319,18 @@ The project includes 29 UI screenshots in the `Screenshots of UI/` directory cov
 <details>
 <summary><b>📷 Click to see sample screenshots</b></summary>
 
-> Screenshots are located in [`Screenshots of UI/`](Screenshots%20of%20UI/) directory. Here are the key screens:
+<img width="1912" height="926" alt="Screenshot 2026-03-30 181554" src="https://github.com/user-attachments/assets/45dfccd3-aa35-4d78-be28-e85f63df76c1" />
+<img width="1919" height="852" alt="Screenshot 2026-03-30 181611" src="https://github.com/user-attachments/assets/6edd09bd-31bc-4f2c-9afa-697855aa55a5" />
+<img width="1595" height="859" alt="Screenshot 2026-03-30 181923" src="https://github.com/user-attachments/assets/f3801958-c5a4-4f96-bd37-67321e5d7764" />
+<img width="1597" height="861" alt="Screenshot 2026-03-30 182121" src="https://github.com/user-attachments/assets/cafce3ad-4be0-400f-835c-98851ac78630" />
+<img width="1592" height="852" alt="Screenshot 2026-03-30 182146" src="https://github.com/user-attachments/assets/0fc26b44-78bb-4b8b-9b47-9151ee18a6a3" />
+<img width="1839" height="925" alt="Screenshot 2026-03-30 182334" src="https://github.com/user-attachments/assets/99de267e-52ce-478d-a2b1-3f5e6c859d9e" />
+<img width="1545" height="788" alt="Screenshot 2026-03-30 182507" src="https://github.com/user-attachments/assets/8eabf746-120b-4ac2-8309-0cd20cbb3479" />
+<img width="1303" height="863" alt="Screenshot 2026-03-30 182700" src="https://github.com/user-attachments/assets/e480e2b0-449c-4cce-8ccd-3c31bbd256d7" />
+<img width="1121" height="834" alt="Screenshot 2026-03-30 182712" src="https://github.com/user-attachments/assets/202615a8-7c41-42b3-8226-fc37df3d01d4" />
+<img width="1736" height="859" alt="Screenshot 2026-03-30 182818" src="https://github.com/user-attachments/assets/b48b99a8-cafa-4f09-9150-87b31046bf4d" />
+<img width="1526" height="799" alt="Screenshot 2026-03-30 183024" src="https://github.com/user-attachments/assets/6b334a8a-f035-46ed-894b-97ee5af780a3" />
 
-| Screen | File |
-|--------|------|
-| Landing Page | `Screenshot 2026-03-30 181554.png` |
-| Event Listing | `Screenshot 2026-03-30 181611.png` |
-| Event Detail | `Screenshot 2026-03-30 181630.png` |
-| Admin Dashboard | `Screenshot 2026-03-30 182027.png` |
-| Vendor Finance | `Screenshot 2026-03-30 182818.png` |
-| Ticket Wallet | `Screenshot 2026-03-30 183024.png` |
-| Check-In Scanner | `Screenshot 2026-03-30 183124.png` |
 
 </details>
 
@@ -572,6 +573,7 @@ Grafana ships with a pre-configured **EventZen Overview** dashboard (`monitoring
 | **Docker Health Checks** | All infrastructure services have health checks for dependency ordering |
 
 ---
+<img width="1919" height="881" alt="Screenshot 2026-03-30 183150" src="https://github.com/user-attachments/assets/9129ef5f-a72c-4b8a-be63-aa7d1bf1bca2" />
 
 ## 📂 Project Structure
 
