@@ -16,6 +16,10 @@ services:
         paths:
           - /api/v1/account-requests
         strip_path: false
+      - name: docs-index-route
+        paths:
+          - /api/v1/docs
+        strip_path: false
 
   - name: event-service
     url: http://event-service:8082

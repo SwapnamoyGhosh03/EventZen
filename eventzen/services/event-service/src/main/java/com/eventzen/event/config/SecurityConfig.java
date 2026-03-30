@@ -53,6 +53,7 @@ public class SecurityConfig {
                 // Public endpoints
                 .requestMatchers("/actuator/**").permitAll()
                 .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
+                .requestMatchers("/api/v1/events/docs/**", "/api/v1/events/openapi/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/v1/events").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/v1/events/search").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/v1/events/{id}").permitAll()

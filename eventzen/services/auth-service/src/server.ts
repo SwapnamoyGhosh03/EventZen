@@ -4,6 +4,7 @@ import helmet from 'helmet';
 import hpp from 'hpp';
 import cookieParser from 'cookie-parser';
 import path from 'path';
+import swaggerUi from 'swagger-ui-express';
 import client from 'prom-client';
 import { config } from './config';
 import { errorHandler } from './middleware/errorHandler';
@@ -11,6 +12,7 @@ import { generalLimiter } from './middleware/rateLimiter';
 import authRoutes from './routes/auth.routes';
 import userRoutes from './routes/user.routes';
 import accountRequestRoutes from './routes/accountRequest.routes';
+import { openApiSpec } from './docs/openapi';
 import db from './database/connection';
 import { connectKafka, disconnectKafka } from './events/kafkaProducer';
 import logger from './utils/logger';
@@ -78,6 +80,29 @@ app.get('/api/v1/health', (_req, res) => {
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/users', userRoutes);
 app.use('/api/v1/account-requests', accountRequestRoutes);
+
+if (config.nodeEnv !== 'production') {
+  app.get('/api/v1/auth/openapi.json', (_req, res) => {
+    res.json(openApiSpec);
+  });
+  app.use('/api/v1/auth/docs', swaggerUi.serve, swaggerUi.setup(openApiSpec));
+
+  app.get('/api/v1/docs', (req, res) => {
+    const base = `${req.protocol}://${req.get('host')}`;
+    res.json({
+      success: true,
+      data: {
+        auth: `${base}/api/v1/auth/docs`,
+        event: `${base}/api/v1/events/docs`,
+        venueVendor: `${base}/api/v1/venues/docs`,
+        ticketing: `${base}/api/v1/tickets/docs`,
+        finance: `${base}/api/v1/payments/docs`,
+        notification: `${base}/api/v1/notifications/docs`,
+      },
+      timestamp: new Date().toISOString(),
+    });
+  });
+}
 
 // Error handler
 app.use(errorHandler);

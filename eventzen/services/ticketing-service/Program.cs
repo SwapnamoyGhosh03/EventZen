@@ -1,6 +1,4 @@
-using System.Text;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Prometheus;
 using TicketingService.Infrastructure.Auth;
@@ -117,8 +115,15 @@ app.UseCors();
 
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwagger(c =>
+    {
+        c.RouteTemplate = "api/v1/tickets/openapi/{documentName}.json";
+    });
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/api/v1/tickets/openapi/v1.json", "EventZen Ticketing Service v1");
+        c.RoutePrefix = "api/v1/tickets/docs";
+    });
 }
 
 app.UseAuthentication();

@@ -10,11 +10,12 @@ interface OtpVerificationProps {
   devOtp?: string;
 }
 
-export default function OtpVerification({ email, onSuccess, onBack, devOtp }: OtpVerificationProps) {
+export default function OtpVerification({ email, onSuccess, onBack, devOtp: initialDevOtp }: OtpVerificationProps) {
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const [error, setError] = useState("");
   const [resendMsg, setResendMsg] = useState("");
   const [countdown, setCountdown] = useState(60);
+  const [devOtp, setDevOtp] = useState(initialDevOtp);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   const [verifyOtp, { isLoading }] = useVerifyOtpMutation();
@@ -78,11 +79,14 @@ export default function OtpVerification({ email, onSuccess, onBack, devOtp }: Ot
     try {
       setError("");
       setResendMsg("");
-      await resendOtp({ email }).unwrap();
+      const result = await resendOtp({ email }).unwrap();
       setResendMsg("A new code has been sent to your email");
       setCountdown(60);
       setOtp(["", "", "", "", "", ""]);
       inputRefs.current[0]?.focus();
+      if (result?.devOtp) {
+        setDevOtp(result.devOtp);
+      }
     } catch (err: any) {
       setError("Failed to resend OTP. Please try again.");
     }
@@ -106,7 +110,7 @@ export default function OtpVerification({ email, onSuccess, onBack, devOtp }: Ot
 
       {devOtp && (
         <div className="bg-amber/10 border border-amber/30 rounded-md p-3 font-body text-sm text-near-black">
-          <p className="text-xs text-amber font-semibold uppercase tracking-wide mb-1">Dev Mode — Email not configured</p>
+          <p className="text-xs text-amber font-semibold uppercase tracking-wide mb-1">Email delivery unavailable — use this code</p>
           Your OTP is: <span className="font-bold tracking-widest text-amber text-lg">{devOtp}</span>
         </div>
       )}

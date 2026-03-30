@@ -171,12 +171,18 @@ using (var scope = app.Services.CreateScope())
 app.UseMiddleware<ExceptionMiddleware>();
 app.UseHttpMetrics();
 
-app.UseSwagger();
-app.UseSwaggerUI(c =>
+if (app.Environment.IsDevelopment())
 {
-    c.SwaggerEndpoint("/swagger/v1/swagger.json", "EventZen Finance Service v1");
-    c.RoutePrefix = "swagger";
-});
+    app.UseSwagger(c =>
+    {
+        c.RouteTemplate = "api/v1/payments/openapi/{documentName}.json";
+    });
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/api/v1/payments/openapi/v1.json", "EventZen Finance Service v1");
+        c.RoutePrefix = "api/v1/payments/docs";
+    });
+}
 
 app.UseCors();
 app.UseAuthentication();

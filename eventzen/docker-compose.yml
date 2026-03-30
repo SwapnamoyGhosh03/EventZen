@@ -313,7 +313,7 @@ services:
       - path: ./.vault/generated/common.env
         required: false
     environment:
-      NODE_ENV: production
+      NODE_ENV: development
       AUTH_SERVICE_PORT: 8081
       MYSQL_HOST: mysql-auth
       MYSQL_PORT: 3306

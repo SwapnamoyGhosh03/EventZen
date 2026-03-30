@@ -37,15 +37,15 @@ export async function register(data: {
       const otp = generateOtp();
       await storeOtp(data.email, otp);
       logger.info(`[OTP] Resent OTP for ${data.email}: ${otp}`);
-      await sendOtpEmail(data.email, otp, existing.first_name);
+      const emailSent = await sendOtpEmail(data.email, otp, existing.first_name);
       return {
         userId: existing.user_id,
         email: data.email,
         firstName: existing.first_name,
         lastName: existing.last_name,
         status: 'PENDING_VERIFICATION',
-        message: 'OTP resent to your email',
-        ...(config.nodeEnv !== 'production' && { devOtp: otp }),
+        message: emailSent ? 'OTP resent to your email' : 'OTP generated — check the code below (email delivery unavailable)',
+        ...(!emailSent && { devOtp: otp }),
       };
     }
     throw new AppError(409, 'AUTH-1003', 'Email already registered');
@@ -75,7 +75,7 @@ export async function register(data: {
   const otp = generateOtp();
   await storeOtp(data.email, otp);
   logger.info(`[OTP] Registration OTP for ${data.email}: ${otp}`);
-  await sendOtpEmail(data.email, otp, data.firstName);
+  const emailSent = await sendOtpEmail(data.email, otp, data.firstName);
 
   await publishEvent('user.registered', userId, {
     userId,
@@ -90,8 +90,8 @@ export async function register(data: {
     firstName: data.firstName,
     lastName: data.lastName,
     status: 'PENDING_VERIFICATION',
-    message: 'OTP sent to your email',
-    ...(config.nodeEnv !== 'production' && { devOtp: otp }),
+    message: emailSent ? 'OTP sent to your email' : 'OTP generated — check the code below (email delivery unavailable)',
+    ...(!emailSent && { devOtp: otp }),
   };
 }
 
@@ -135,9 +135,12 @@ export async function resendOtp(email: string) {
   const otp = generateOtp();
   await storeOtp(email, otp);
   logger.info(`[OTP] Resend OTP for ${email}: ${otp}`);
-  await sendOtpEmail(email, otp, user.first_name);
+  const emailSent = await sendOtpEmail(email, otp, user.first_name);
 
-  return { message: 'If the email is pending verification, a new OTP has been sent' };
+  return {
+    message: emailSent ? 'A new OTP has been sent to your email' : 'OTP generated — check the code below (email delivery unavailable)',
+    ...(!emailSent && { devOtp: otp }),
+  };
 }
 
 export async function login(

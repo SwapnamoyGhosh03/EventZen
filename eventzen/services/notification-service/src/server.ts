@@ -2,6 +2,7 @@ import express from 'express';
 import http from 'http';
 import helmet from 'helmet';
 import cors from 'cors';
+import swaggerUi from 'swagger-ui-express';
 import client from 'prom-client';
 import { config } from './config';
 import { connectDatabase } from './database/mongoose';
@@ -34,6 +35,7 @@ import templateRoutes from './routes/template.routes';
 import preferenceRoutes from './routes/preference.routes';
 import pushTokenRoutes from './routes/pushToken.routes';
 import webhookRoutes from './routes/webhook.routes';
+import { openApiSpec } from './docs/openapi';
 
 const app = express();
 const server = http.createServer(app);
@@ -79,6 +81,13 @@ app.use('/api/v1/notifications/preferences', preferenceRoutes);
 app.use('/api/v1/notifications/push-tokens', pushTokenRoutes);
 app.use('/api/v1/notifications/webhooks', webhookRoutes);
 app.use('/api/v1/notifications', notificationRoutes);
+
+if (config.nodeEnv !== 'production') {
+  app.get('/api/v1/notifications/openapi.json', (_req, res) => {
+    res.json(openApiSpec);
+  });
+  app.use('/api/v1/notifications/docs', swaggerUi.serve, swaggerUi.setup(openApiSpec));
+}
 
 // Error handler
 app.use(errorHandler);

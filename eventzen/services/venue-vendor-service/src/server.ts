@@ -5,6 +5,7 @@ import express from 'express';
 import cors from 'cors';
 import path from 'path';
 import helmet from 'helmet';
+import swaggerUi from 'swagger-ui-express';
 import client from 'prom-client';
 import { config } from './config';
 import { connectDatabase } from './database/mongoose';
@@ -36,6 +37,7 @@ import venueRoutes from './routes/venue.routes';
 import vendorRoutes from './routes/vendor.routes';
 import contractRoutes from './routes/contract.routes';
 import uploadRoutes from './routes/upload.routes';
+import { openApiSpec } from './docs/openapi';
 import { initMinIO } from './services/minio.service';
 
 const app = express();
@@ -79,6 +81,13 @@ app.use('/api/v1/venues', venueRoutes);
 app.use('/api/v1/vendors', vendorRoutes);
 app.use('/api/v1', contractRoutes);
 app.use('/api/v1/upload', uploadRoutes);
+
+if (process.env.NODE_ENV !== 'production') {
+  app.get('/api/v1/venues/openapi.json', (_req, res) => {
+    res.json(openApiSpec);
+  });
+  app.use('/api/v1/venues/docs', swaggerUi.serve, swaggerUi.setup(openApiSpec));
+}
 
 // Error handler
 app.use(errorHandler);

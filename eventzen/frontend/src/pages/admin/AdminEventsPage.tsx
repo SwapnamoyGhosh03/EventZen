@@ -17,6 +17,7 @@ import RatingDisplay from "@/components/reviews/RatingDisplay";
 import EventReviewsModal from "@/components/reviews/EventReviewsModal";
 import { useListEventsQuery, useUpdateEventMutation, useUpdateEventStatusMutation, useDeleteEventMutation, useGetCategoriesQuery } from "@/store/api/eventApi";
 import DateTimePicker from "@/components/ui/DateTimePicker";
+import ImageUploader from "@/components/ui/ImageUploader";
 import { formatShortDate } from "@/utils/formatters";
 import { EVENT_STATUSES } from "@/config/constants";
 
@@ -29,6 +30,7 @@ export default function AdminEventsPage() {
   const [ticketModal, setTicketModal] = useState<any>(null);
   const [editModal, setEditModal] = useState<any>(null);
   const [editForm, setEditForm] = useState({ title: "", description: "", city: "", startDate: "", endDate: "", maxCapacity: "", categoryId: "" });
+  const [editEventImages, setEditEventImages] = useState<string[]>([]);
   const [editError, setEditError] = useState("");
   const [reviewsModal, setReviewsModal] = useState<{ eventId: string; title: string } | null>(null);
 
@@ -52,6 +54,12 @@ export default function AdminEventsPage() {
       maxCapacity: e.maxCapacity != null ? String(e.maxCapacity) : "",
       categoryId: e.categoryId || "",
     });
+    const existingImages = Array.isArray(e.imageUrls) && e.imageUrls.length > 0
+      ? e.imageUrls
+      : e.bannerUrl
+      ? [e.bannerUrl]
+      : [];
+    setEditEventImages(existingImages);
     setEditError("");
   };
 
@@ -69,9 +77,12 @@ export default function AdminEventsPage() {
           endDate: editForm.endDate || undefined,
           maxCapacity: editForm.maxCapacity !== "" ? Number(editForm.maxCapacity) : undefined,
           categoryId: editForm.categoryId || undefined,
+          imageUrls: editEventImages,
+          bannerUrl: editEventImages[0] || "",
         },
       }).unwrap();
       setEditModal(null);
+      setEditEventImages([]);
     } catch (err: any) {
       setEditError(err?.data?.message || "Failed to update event");
     }
@@ -318,7 +329,7 @@ export default function AdminEventsPage() {
           />
         )}
 
-        <Modal isOpen={!!editModal} onClose={() => setEditModal(null)} title="Edit Event" size="md">
+        <Modal isOpen={!!editModal} onClose={() => { setEditModal(null); setEditEventImages([]); }} title="Edit Event" size="md">
           <div className="space-y-4">
             <Input label="Title" value={editForm.title} onChange={(e) => setEditForm(f => ({ ...f, title: e.target.value }))} />
             <div className="grid sm:grid-cols-2 gap-4">
@@ -345,6 +356,13 @@ export default function AdminEventsPage() {
               />
             </div>
             <Input label="Max Capacity" type="number" value={editForm.maxCapacity} onChange={(e) => setEditForm(f => ({ ...f, maxCapacity: e.target.value }))} />
+            <ImageUploader
+              images={editEventImages}
+              onChange={setEditEventImages}
+              max={5}
+              label="Event Photos"
+              hint="First photo will be used as the cover image."
+            />
             <div>
               <label className="block text-sm font-medium text-near-black mb-1.5 font-body">Description</label>
               <textarea
