@@ -1,5 +1,6 @@
 <p align="center">
-  <img src="eventzen/docs/architecture/eventzen-high-level-architecture.png" alt="EventZen Architecture" width="900"/>
+  <img width="1170" height="673" alt="Screenshot 2026-03-30 193007" src="https://github.com/user-attachments/assets/6167a944-4d5f-429c-a604-345647d7ad49" />
+
 </p>
 
 <h1 align="center">🎪 EventZen</h1>
@@ -68,7 +69,8 @@ The platform is built with a **polyglot microservices architecture** — combini
 EventZen follows a microservices architecture with an API Gateway pattern, event-driven messaging, and secrets management via HashiCorp Vault.
 
 <p align="center">
-  <img src="eventzen/docs/architecture/eventzen-high-level-architecture.png" alt="EventZen Architecture Diagram" width="900"/>
+  <img width="2100" height="1200" alt="image" src="https://github.com/user-attachments/assets/0872351f-84e5-46a4-a700-f0410e1c4c34" />
+
   <br/>
   <em>EventZen microservices architecture — Frontend → Kong API Gateway → 6 polyglot services → MySQL / MongoDB / Kafka / Vault</em>
 </p>
