@@ -14,6 +14,7 @@ import userRoutes from './routes/user.routes';
 import accountRequestRoutes from './routes/accountRequest.routes';
 import { openApiSpec } from './docs/openapi';
 import db from './database/connection';
+import { bootstrapDemoUsers } from './database/bootstrapDemoUsers';
 import { connectKafka, disconnectKafka } from './events/kafkaProducer';
 import logger from './utils/logger';
 
@@ -133,6 +134,10 @@ async function start() {
       directory: path.join(__dirname, 'database', 'seeds'),
       loadExtensions: ['.js'],
     });
+  }
+
+  if (config.nodeEnv !== 'production') {
+    await bootstrapDemoUsers(db);
   }
 
   try {

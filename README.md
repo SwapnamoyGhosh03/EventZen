@@ -783,7 +783,36 @@ The start script automatically resolves occupied host ports, updates frontend AP
 EventZenStop.bat
 ```
 
-### 5) Check Status and Logs (Optional)
+### 5) Demo Login Accounts (Seeded Automatically)
+
+These users are auto-seeded in Docker development mode:
+
+| Role | Login ID (Email) | Password |
+|------|-------------------|----------|
+| **Admin** | `admin@eventzen.local` | `Admin@123` |
+| **Organizer** | `organizer@eventzen.local` | `Organizer@123` |
+| **Attendee** | `attendee@eventzen.local` | `Attendee@123` |
+
+Sample demo events (with agenda, tickets, comments, and sponsors):
+
+- `8fd1e3b0-3d44-4cb1-8dd2-cf5a6f5d1001` (Registration Open)
+- `8fd1e3b0-3d44-4cb1-8dd2-cf5a6f5d1002` (Published)
+- `8fd1e3b0-3d44-4cb1-8dd2-cf5a6f5d1003` (Completed)
+
+If you already ran EventZen earlier and do not see the latest demo seed data, recreate Docker volumes once:
+
+```bash
+cd eventzen
+docker compose down -v
+```
+
+Then start again:
+
+```bat
+EventZenStart.bat
+```
+
+### 6) Check Status and Logs (Optional)
 
 ```bash
 cd eventzen

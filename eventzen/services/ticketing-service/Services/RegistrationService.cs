@@ -89,6 +89,10 @@ public class RegistrationService
 
         // Check availability via Redis DECR (atomic)
         var availabilityKey = $"ticket_availability:{request.TicketTypeId}";
+        if (!await _redis.ExistsAsync(availabilityKey))
+        {
+            await _redis.InitializeTicketAvailabilityAsync(request.TicketTypeId, ticketType.AvailableQuantity);
+        }
         var remaining = await _redis.DecrementAsync(availabilityKey);
 
         if (remaining < 0)

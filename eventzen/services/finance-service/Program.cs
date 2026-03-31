@@ -3,6 +3,7 @@ using FinanceService.Infrastructure.Auth;
 using FinanceService.Infrastructure.Data;
 using FinanceService.Infrastructure.Kafka;
 using FinanceService.Middleware;
+using FinanceService.Models;
 using FinanceService.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.EntityFrameworkCore;
@@ -117,53 +118,130 @@ builder.Services.AddCors(options =>
 });
 
 var app = builder.Build();
+await InitializeDatabaseAndSeedAsync(app.Services);
 
-// ----- Auto-apply Migrations -----
-using (var scope = app.Services.CreateScope())
+static async Task InitializeDatabaseAndSeedAsync(IServiceProvider services)
 {
-    var db = scope.ServiceProvider.GetRequiredService<FinanceDbContext>();
-    try
-    {
-        // If no migration files exist, EnsureCreatedAsync creates schema from model directly
-        var pendingMigrations = await db.Database.GetPendingMigrationsAsync();
-        if (pendingMigrations.Any())
-        {
-            await db.Database.MigrateAsync();
-            Console.WriteLine("Database migrations applied successfully.");
-        }
-        else
-        {
-            await db.Database.EnsureCreatedAsync();
-            Console.WriteLine("Database schema ensured.");
-        }
-    }
-    catch (Exception ex)
-    {
-        Console.WriteLine($"Warning: DB setup failed: {ex.Message}");
-    }
+    const int maxAttempts = 24;
+    var retryDelay = TimeSpan.FromSeconds(5);
 
-    // Ensure tables added after initial schema creation exist (no-op if already present)
-    try
+    for (var attempt = 1; attempt <= maxAttempts; attempt++)
     {
-        var db2 = scope.ServiceProvider.GetRequiredService<FinanceDbContext>();
-        await db2.Database.ExecuteSqlRawAsync(@"
-            CREATE TABLE IF NOT EXISTS `Sponsorships` (
-                `SponsorshipId` varchar(36) NOT NULL,
-                `EventId`       varchar(36) NOT NULL,
-                `VendorId`      varchar(36) NOT NULL,
-                `CompanyName`   varchar(255) NOT NULL,
-                `LogoUrl`       longtext NULL,
-                `Message`       varchar(500) NULL,
-                `Amount`        decimal(12, 2) NOT NULL,
-                `CreatedAt`     datetime(6) NOT NULL,
-                PRIMARY KEY (`SponsorshipId`),
-                KEY `IX_Sponsorships_EventId` (`EventId`)
-            ) CHARACTER SET=utf8mb4;");
-        Console.WriteLine("Sponsorships table ensured.");
+        using var scope = services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<FinanceDbContext>();
+
+        try
+        {
+            if (!await db.Database.CanConnectAsync())
+            {
+                throw new InvalidOperationException("MySQL not reachable yet.");
+            }
+
+            var pendingMigrations = await db.Database.GetPendingMigrationsAsync();
+            if (pendingMigrations.Any())
+            {
+                await db.Database.MigrateAsync();
+                Console.WriteLine("Database migrations applied successfully.");
+            }
+            else
+            {
+                await db.Database.EnsureCreatedAsync();
+                Console.WriteLine("Database schema ensured.");
+            }
+
+            await EnsureSponsorshipTableAsync(db);
+            await SeedDemoSponsorshipsAsync(db);
+            Console.WriteLine("Finance DB bootstrap completed.");
+            return;
+        }
+        catch (Exception ex)
+        {
+            if (attempt == maxAttempts)
+            {
+                Console.WriteLine($"Warning: finance DB bootstrap exhausted retries: {ex.Message}");
+                return;
+            }
+
+            Console.WriteLine($"Finance DB bootstrap attempt {attempt}/{maxAttempts} failed: {ex.Message}");
+            await Task.Delay(retryDelay);
+        }
     }
-    catch (Exception ex)
+}
+
+static async Task EnsureSponsorshipTableAsync(FinanceDbContext db)
+{
+    await db.Database.ExecuteSqlRawAsync(@"
+        CREATE TABLE IF NOT EXISTS `Sponsorships` (
+            `SponsorshipId` varchar(36) NOT NULL,
+            `EventId`       varchar(36) NOT NULL,
+            `VendorId`      varchar(36) NOT NULL,
+            `CompanyName`   varchar(255) NOT NULL,
+            `LogoUrl`       longtext NULL,
+            `Message`       varchar(500) NULL,
+            `Amount`        decimal(12, 2) NOT NULL,
+            `CreatedAt`     datetime(6) NOT NULL,
+            PRIMARY KEY (`SponsorshipId`),
+            KEY `IX_Sponsorships_EventId` (`EventId`)
+        ) CHARACTER SET=utf8mb4;");
+    Console.WriteLine("Sponsorships table ensured.");
+}
+
+static async Task SeedDemoSponsorshipsAsync(FinanceDbContext db)
+{
+    var demoSponsorships = new List<Sponsorship>
     {
-        Console.WriteLine($"Warning: Sponsorships table ensure failed: {ex.Message}");
+        new()
+        {
+            SponsorshipId = "3e8b53f3-3c8b-4a83-b9ff-6a4a10000001",
+            EventId = "8fd1e3b0-3d44-4cb1-8dd2-cf5a6f5d1001",
+            VendorId = "6ee0f8b1-b2f5-4b8f-9d1d-710410000001",
+            CompanyName = "Northstar Cloud",
+            LogoUrl = "https://picsum.photos/seed/northstar-cloud/300/120",
+            Message = "Proud to support India's next generation of product leaders.",
+            Amount = 350000,
+            CreatedAt = DateTime.UtcNow.AddDays(-14)
+        },
+        new()
+        {
+            SponsorshipId = "3e8b53f3-3c8b-4a83-b9ff-6a4a10000002",
+            EventId = "8fd1e3b0-3d44-4cb1-8dd2-cf5a6f5d1001",
+            VendorId = "6ee0f8b1-b2f5-4b8f-9d1d-710410000002",
+            CompanyName = "Quantum Payments",
+            LogoUrl = "https://picsum.photos/seed/quantum-payments/300/120",
+            Message = "Seamless event commerce for modern communities.",
+            Amount = 220000,
+            CreatedAt = DateTime.UtcNow.AddDays(-10)
+        },
+        new()
+        {
+            SponsorshipId = "3e8b53f3-3c8b-4a83-b9ff-6a4a10000003",
+            EventId = "8fd1e3b0-3d44-4cb1-8dd2-cf5a6f5d1003",
+            VendorId = "6ee0f8b1-b2f5-4b8f-9d1d-710410000003",
+            CompanyName = "BlueHarbor Infra",
+            LogoUrl = "https://picsum.photos/seed/blueharbor-infra/300/120",
+            Message = "Partnering to build stronger event ecosystems.",
+            Amount = 180000,
+            CreatedAt = DateTime.UtcNow.AddMonths(-4)
+        }
+    };
+
+    var existingIds = await db.Sponsorships
+        .Select(s => s.SponsorshipId)
+        .ToListAsync();
+
+    var toInsert = demoSponsorships
+        .Where(s => !existingIds.Contains(s.SponsorshipId))
+        .ToList();
+
+    if (toInsert.Count > 0)
+    {
+        db.Sponsorships.AddRange(toInsert);
+        await db.SaveChangesAsync();
+        Console.WriteLine($"Seeded {toInsert.Count} demo sponsorship records.");
+    }
+    else
+    {
+        Console.WriteLine("Demo sponsorship records already present.");
     }
 }
 

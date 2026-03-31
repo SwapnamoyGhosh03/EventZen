@@ -1,5 +1,6 @@
 import { Knex } from 'knex';
 import { v4 as uuidv4 } from 'uuid';
+import bcrypt from 'bcryptjs';
 
 export async function seed(knex: Knex): Promise<void> {
   await knex('role_permissions').del();
@@ -72,4 +73,81 @@ export async function seed(knex: Knex): Promise<void> {
     permission_id: p.permission_id,
   }));
   await knex('role_permissions').insert(attendeePerms);
+
+  // Demo users for local development and Docker bootstrap
+  const demoUsers = [
+    {
+      user_id: '11111111-1111-1111-1111-111111111111',
+      email: 'admin@eventzen.local',
+      password: 'Admin@123',
+      first_name: 'System',
+      last_name: 'Admin',
+      phone: '+91-9000000001',
+      role: 'ADMIN',
+    },
+    {
+      user_id: '22222222-2222-2222-2222-222222222222',
+      email: 'organizer@eventzen.local',
+      password: 'Organizer@123',
+      first_name: 'Olivia',
+      last_name: 'Organizer',
+      phone: '+91-9000000002',
+      role: 'ORGANIZER',
+    },
+    {
+      user_id: '33333333-3333-3333-3333-333333333333',
+      email: 'attendee@eventzen.local',
+      password: 'Attendee@123',
+      first_name: 'Aarav',
+      last_name: 'Attendee',
+      phone: '+91-9000000003',
+      role: 'ATTENDEE',
+    },
+  ];
+
+  for (const account of demoUsers) {
+    const existing = await knex('users').where({ email: account.email }).first();
+    const passwordHash = await bcrypt.hash(account.password, 12);
+
+    let userId = account.user_id;
+
+    if (existing) {
+      userId = existing.user_id;
+      await knex('users')
+        .where({ user_id: userId })
+        .update({
+          password_hash: passwordHash,
+          first_name: account.first_name,
+          last_name: account.last_name,
+          phone: account.phone,
+          status: 'ACTIVE',
+          is_email_verified: true,
+          updated_at: knex.fn.now(),
+        });
+    } else {
+      await knex('users').insert({
+        user_id: account.user_id,
+        email: account.email,
+        password_hash: passwordHash,
+        first_name: account.first_name,
+        last_name: account.last_name,
+        phone: account.phone,
+        status: 'ACTIVE',
+        is_email_verified: true,
+      });
+    }
+
+    const roleRecord = roles.find((r) => r.role_name === account.role);
+    if (roleRecord) {
+      await knex('user_roles')
+        .insert({
+          id: uuidv4(),
+          user_id: userId,
+          role_id: roleRecord.role_id,
+          assigned_by: null,
+        })
+        .onConflict(['user_id', 'role_id'])
+        .ignore();
+    }
+  }
 }
