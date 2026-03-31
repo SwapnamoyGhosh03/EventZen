@@ -26,7 +26,16 @@ A complete walkthrough and live demonstration of the project is available here:
   <img src="https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker&logoColor=white" alt="Docker"/>
   <img src="https://img.shields.io/badge/Kafka-7.5-231F20?logo=apachekafka&logoColor=white" alt="Kafka"/>
   <img src="https://img.shields.io/badge/Kong-3.5-003459?logo=kong&logoColor=white" alt="Kong"/>
-  <img src="https://img.shields.io/badge/Vault-1.17-FFEC6E?logo=vault&logoColor=black" alt="Vault"/>
+  <img src="https://img.shields.io/badge/HashiCorp_Vault-1.17-FFEC6E?logo=vault&logoColor=black" alt="HashiCorp Vault"/>
+  <br/>
+  <img src="https://img.shields.io/badge/MySQL-8.0-4479A1?logo=mysql&logoColor=white" alt="MySQL 8.0"/>
+  <img src="https://img.shields.io/badge/MongoDB-7-47A248?logo=mongodb&logoColor=white" alt="MongoDB 7"/>
+  <img src="https://img.shields.io/badge/Redis-7-DC382D?logo=redis&logoColor=white" alt="Redis 7"/>
+  <img src="https://img.shields.io/badge/MinIO-Latest-C72E49?logo=minio&logoColor=white" alt="MinIO"/>
+  <img src="https://img.shields.io/badge/Elasticsearch-8.12-005571?logo=elasticsearch&logoColor=white" alt="Elasticsearch 8.12"/>
+  <img src="https://img.shields.io/badge/Prometheus-2.51-E6522C?logo=prometheus&logoColor=white" alt="Prometheus 2.51"/>
+  <img src="https://img.shields.io/badge/Grafana-10.4-F46800?logo=grafana&logoColor=white" alt="Grafana 10.4"/>
+  <img src="https://img.shields.io/badge/ZooKeeper-Confluent-2A2F4F" alt="ZooKeeper"/>
 </p>
 
 ---
@@ -152,6 +161,9 @@ EventZen follows a microservices architecture with an API Gateway pattern, event
 |-----------|-----------|---------|
 | API Gateway | Kong 3.5 | Declarative routing, rate limiting, CORS |
 | Message Broker | Apache Kafka 7.5 (Confluent) | Event-driven async communication |
+| Coordination | ZooKeeper (Confluent CP) | Kafka broker coordination and metadata |
+| Relational Database | MySQL 8.0 (auth/events/finance) | Transactional data for core domain services |
+| Document Database | MongoDB 7 (venue/ticketing/notification) | Flexible document storage and querying |
 | Caching | Redis 7 Alpine | Session store, response caching |
 | Object Storage | MinIO | Media uploads (venue/event images) |
 | Search | Elasticsearch 8.12 | Full-text event search |
@@ -160,6 +172,13 @@ EventZen follows a microservices architecture with an API Gateway pattern, event
 | Container Metrics | cAdvisor 0.49 + Node Exporter 1.7 | Infrastructure telemetry |
 | Orchestration | Docker Compose | Multi-container orchestration |
 | CI/CD | GitHub Actions | Automated build, test, deploy |
+
+**Docker Compose service inventory used in this project**
+
+- App layer: `frontend`, `auth-service`, `event-service`, `venue-vendor-service`, `ticketing-service`, `finance-service`, `notification-service`
+- Data layer: `mysql-auth`, `mysql-events`, `mysql-finance`, `mongodb-venue`, `mongodb-ticketing`, `mongodb-notification`, `redis`, `minio`, `elasticsearch`
+- Messaging & gateway: `zookeeper`, `kafka`, `kafka-init`, `kong`
+- Secrets & observability: `vault`, `vault-init`, `prometheus`, `grafana`, `cadvisor`, `node-exporter`
 
 ---
 
@@ -1041,5 +1060,5 @@ This project was built as a **Deloitte Capstone Project**. Please refer to the o
 <p align="center">
   <b>Built by Swapnamoy Ghosh</b>
   <br/>
-  <sub>React · Spring Boot · .NET · Node.js · Kafka · Kong · Vault · Docker</sub>
+  <sub>React · Spring Boot · .NET · Node.js · MySQL · MongoDB · Redis · Kafka · Kong · Vault · MinIO · Elasticsearch · Prometheus · Grafana · Docker</sub>
 </p>
