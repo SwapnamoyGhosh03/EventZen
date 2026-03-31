@@ -589,13 +589,14 @@ Deloitte_Capstone/
 │       └── ci.yml                    # GitHub Actions CI pipeline
 ├── Screenshots of UI/               # 29 UI screenshots
 ├── Deloitte_Capstone.sln            # Visual Studio solution file
-├── START.bat                        # One-click local startup script
+├── EventZenStart.bat                # One-click Docker startup script
+├── EventZenStop.bat                 # One-click Docker shutdown script
 │
 └── eventzen/                        # Main application root
     ├── .env                         # Environment variables (gitignored)
     ├── .env.example                 # Environment template
     ├── docker-compose.yml           # 20+ container orchestration
-    ├── start-all.bat                # Alternative startup script
+    ├── start-all.bat                # Legacy local startup script
     │
     ├── frontend/                    # React 19 SPA
     │   ├── src/
@@ -749,73 +750,45 @@ Deloitte_Capstone/
 
 | Tool | Version | Required For |
 |------|---------|-------------|
-| **Node.js** | ≥ 20 | Auth, Venue-Vendor, Notification services + Frontend |
-| **Java JDK** | 21 | Event Service (Spring Boot) |
-| **.NET SDK** | 10.0 | Ticketing & Finance services |
-| **Maven** | 3.9+ | Event Service build |
-| **Docker Desktop** | Latest | Infrastructure containers |
-| **MongoDB** | 7.x | Local development (or use Docker) |
-| **Git** | Latest | Version control |
+| **Git** | Latest | Clone repository |
+| **Docker Desktop** | Latest | Run the full EventZen stack |
+| **Windows** | 10/11 | Run `EventZenStart.bat` and `EventZenStop.bat` |
 
-### Option 1: One-Click Local Start (Windows)
+### 1) Clone Repository
 
 ```bash
-# Clone the repository
 git clone https://github.com/SwapnamoyGhosh03/EventZen.git
 cd EventZen
-
-# Copy environment template
-cp eventzen/.env.example eventzen/.env
-# Edit eventzen/.env with your credentials
-
-# Start everything (infrastructure + all services)
-START.bat
 ```
 
-This launches:
-| Component | Port |
-|-----------|------|
-| MongoDB | 27017 |
-| Kafka | 9092 |
-| Auth Service | 8081 |
-| Event Service | 8082 |
-| Venue-Vendor Service | 8083 |
-| Ticketing Service | 8084 |
-| Finance Service | 8085 |
-| Notification Service | 8086 |
+### 2) Create Environment File
 
-### Option 2: Manual Service Start
-
-```bash
-# 1. Start infrastructure
-mongod --dbpath /path/to/data
-# Start Kafka (KRaft mode)
-
-# 2. Start each service
-cd eventzen/services/auth-service && npm install && npm run dev
-cd eventzen/services/event-service && mvn spring-boot:run
-cd eventzen/services/venue-vendor-service && npm install && npm run dev
-cd eventzen/services/ticketing-service && dotnet run
-cd eventzen/services/finance-service && dotnet run
-cd eventzen/services/notification-service && npm install && npm run dev
-
-# 3. Start frontend
-cd eventzen/frontend && npm install && npm run dev
+```powershell
+Copy-Item "eventzen/.env.example" "eventzen/.env"
 ```
 
-### Option 3: Docker Compose (Full Stack)
+Open `eventzen/.env` and fill required secrets/passwords before first run.
+
+### 3) Start EventZen (Docker Only)
+
+```bat
+EventZenStart.bat
+```
+
+The start script automatically resolves occupied host ports, updates frontend API URLs, and runs `docker compose up -d --build`.
+
+### 4) Stop EventZen
+
+```bat
+EventZenStop.bat
+```
+
+### 5) Check Status and Logs (Optional)
 
 ```bash
 cd eventzen
-
-# Copy env template
-cp .env.example .env
-
-# Start entire stack (20+ containers)
-docker compose up -d --build
-
-# With Vault dev mode
-docker compose --profile vault-dev up -d --build
+docker compose ps
+docker compose logs -f
 ```
 
 ---
