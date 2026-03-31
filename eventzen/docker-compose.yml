@@ -360,9 +360,16 @@ services:
       SPRING_DATASOURCE_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       SPRING_DATA_REDIS_HOST: redis
       SPRING_DATA_REDIS_PORT: 6379
+      SPRING_DATA_REDIS_PASSWORD: ${REDIS_PASSWORD}
       SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
       JWT_SECRET: ${JWT_SECRET}
       CORS_ALLOWED_ORIGINS: http://localhost:${HOST_FRONTEND_PORT:-5173},http://localhost:3000,http://127.0.0.1:${HOST_FRONTEND_PORT:-5173}
+    develop:
+      watch:
+        - action: rebuild
+          path: ./services/event-service/src
+        - action: rebuild
+          path: ./services/event-service/pom.xml
     networks:
       - eventzen-network
 
@@ -518,6 +525,16 @@ services:
       VITE_PAYMENT_API_URL: http://localhost:${HOST_FINANCE_SERVICE_PORT:-8085}/api/v1
       VITE_NOTIFICATION_API_URL: http://localhost:${HOST_NOTIFICATION_SERVICE_PORT:-8086}/api/v1
       VITE_UPLOAD_URL: http://localhost:${HOST_VENUE_VENDOR_SERVICE_PORT:-8083}/api/v1/upload
+    develop:
+      watch:
+        - action: sync
+          path: ./frontend/src
+          target: /app/src
+        - action: sync
+          path: ./frontend/public
+          target: /app/public
+        - action: rebuild
+          path: ./frontend/package.json
     networks:
       - eventzen-network
 
@@ -624,6 +641,11 @@ services:
       KONG_ADMIN_ERROR_LOG: /dev/stderr
     volumes:
       - ./gateway/kong.yml:/etc/kong/kong.yml:ro
+    develop:
+      watch:
+        - action: sync+restart
+          path: ./gateway/kong.yml
+          target: /etc/kong/kong.yml
     networks:
       - eventzen-network
 
