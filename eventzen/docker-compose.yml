@@ -161,7 +161,7 @@ services:
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:${HOST_KAFKA_PORT:-9092}
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
@@ -566,7 +566,7 @@ services:
     container_name: eventzen-node-exporter
     restart: unless-stopped
     ports:
-      - "9100:9100"
+      - "${HOST_NODE_EXPORTER_PORT:-9100}:9100"
     volumes:
       - /proc:/host/proc:ro
       - /sys:/host/sys:ro
@@ -584,7 +584,7 @@ services:
     container_name: eventzen-cadvisor
     restart: unless-stopped
     ports:
-      - "8087:8080"
+      - "${HOST_CADVISOR_PORT:-8087}:8080"
     volumes:
       - /:/rootfs:ro
       - /var/run:/var/run:ro

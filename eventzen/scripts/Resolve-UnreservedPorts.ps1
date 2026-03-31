@@ -139,6 +139,10 @@ $portVars = [ordered]@{
   "HOST_MINIO_CONSOLE_PORT" = 9001
   "HOST_ELASTICSEARCH_PORT" = 9200
   "HOST_VAULT_PORT" = 8200
+  "HOST_PROMETHEUS_PORT" = 9090
+  "HOST_GRAFANA_PORT" = 3001
+  "HOST_NODE_EXPORTER_PORT" = 9100
+  "HOST_CADVISOR_PORT" = 8087
 }
 
 $lines = Get-Content -LiteralPath $EnvFilePath
@@ -170,6 +174,11 @@ foreach ($entry in $portVars.GetEnumerator()) {
     Variable = $key
     Port = $selectedPort
   }
+}
+
+$vaultHostPort = ($resolved | Where-Object Variable -eq "HOST_VAULT_PORT" | Select-Object -First 1).Port
+if ($vaultHostPort) {
+  $lines = Set-EnvValue -Lines $lines -Key "VAULT_ADDR" -Value "http://127.0.0.1:$vaultHostPort"
 }
 
 Set-Content -LiteralPath $EnvFilePath -Value $lines -Encoding utf8
